@@ -14,4 +14,7 @@ pub enum AppError {
 
     #[error("Subscribe error: {0}")]
     SubscribeError(String),
+
+    #[error("Validation error: {0}")]
+    ValidateError(#[from] garde::Report),
 }

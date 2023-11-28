@@ -14,7 +14,7 @@ pub trait OrderbookProvider {
         &self,
         params: Self::Params,
         callback: impl FnMut(Result<AppError, Orderbook>) + Send + 'static,
-    );
+    ) -> Result<(), AppError>;
 }
 
 pub trait TradeProvider {
@@ -28,7 +28,7 @@ pub trait TradeProvider {
 
 pub trait KlineProvider {
     type Params;
-    async fn watch_trade(
+    async fn watch_kline(
         &self,
         params: Self::Params,
         callback: impl FnMut(Result<AppError, Kline>) + Send + 'static,
@@ -37,7 +37,7 @@ pub trait KlineProvider {
 
 pub trait LiquidationProvider {
     type Params;
-    async fn watch_trade(
+    async fn watch_liquidation(
         &self,
         params: Self::Params,
         callback: impl FnMut(Result<AppError, Liquidation>) + Send + 'static,
