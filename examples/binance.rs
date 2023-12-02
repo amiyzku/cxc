@@ -9,7 +9,7 @@ use cxc::exchanges::{
 #[tokio::main]
 async fn main() {
     let mut binance = Binance::new();
-    let result = binance
+    let handle = binance
         .watch_orderbook(
             OrderBookParams {
                 symbol: "BTCUSDT".to_string(),
@@ -20,6 +20,8 @@ async fn main() {
                 println!("{:?}", orderbook);
             },
         )
-        .await;
-    binance.start_watch().await;
+        .await
+        .expect("Failed to watch orderbook");
+
+    let _ = tokio::join!(handle);
 }

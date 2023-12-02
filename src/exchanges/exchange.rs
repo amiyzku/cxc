@@ -1,3 +1,5 @@
+use tokio::task::JoinHandle;
+
 use crate::{
     error::AppError,
     response::{Kline, Liquidation, Orderbook, Trade},
@@ -14,7 +16,7 @@ pub trait OrderbookProvider {
         &mut self,
         params: Self::Params,
         callback: impl FnMut(Result<Orderbook, AppError>) + Send + 'static,
-    ) -> Result<(), AppError>;
+    ) -> Result<JoinHandle<()>, AppError>;
 }
 
 pub trait TradeProvider {

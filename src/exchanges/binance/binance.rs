@@ -20,28 +20,20 @@ use tokio_tungstenite::tungstenite::Message;
 
 use super::{channel::Channel, interval::Interval};
 
-pub struct Binance {
-    tasks: JoinSet<JoinHandle<()>>,
-}
+pub struct Binance {}
 impl Exchange for Binance {}
 
 impl Binance {
     pub fn new() -> Self {
-        Self {
-            tasks: JoinSet::new(),
-        }
-    }
-
-    pub async fn start_watch(&mut self) {
-        while let Some(_) = self.tasks.join_next().await {}
+        Self {}
     }
 
     fn run_forever(
         &mut self,
         mut ws: Websocket,
         mut callback: impl FnMut(Result<String, AppError>) + Send + 'static,
-    ) -> AbortHandle {
-        self.tasks.spawn(async move {
+    ) -> JoinHandle<()> {
+        tokio::spawn(async move {
             loop {
                 match timeout(Duration::from_secs(60 * 4), ws.base.read()).await {
                     Ok(Ok(msg)) => match msg {
@@ -72,7 +64,7 @@ impl OrderbookProvider for Binance {
         &mut self,
         params: Self::Params,
         mut callback: impl FnMut(Result<Orderbook, AppError>) + Send + 'static,
-    ) -> Result<(), AppError> {
+    ) -> Result<JoinHandle<()>, AppError> {
         params.validate(&())?;
         let depth = match params.depth {
             1..=5 => 5,
@@ -90,7 +82,7 @@ impl OrderbookProvider for Binance {
 
         let ws = Websocket::connect(endpoint).await?;
 
-        self.run_forever(ws, move |msg| match msg {
+        let handle = self.run_forever(ws, move |msg| match msg {
             Ok(msg) => {
                 let json = serde_json::from_str::<raw_response::Orderbook>(&msg);
                 match json {
@@ -108,7 +100,7 @@ impl OrderbookProvider for Binance {
             }
         });
 
-        Ok(())
+        Ok(handle)
     }
 }
 
