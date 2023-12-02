@@ -1,7 +1,7 @@
 #[derive(thiserror::Error, Debug)]
 pub enum AppError {
     #[error("Websocket connection error: {0}")]
-    WebsocketConnectionError(tokio_tungstenite::tungstenite::Error),
+    WebsocketError(#[from] tokio_tungstenite::tungstenite::Error),
 
     #[error("Websocket connection closed")]
     WebsocketConnectionClosed(),
