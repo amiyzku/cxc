@@ -21,8 +21,7 @@ impl WebsocketBase {
         }
     }
 
-    pub async fn write(&mut self, msg: &str) -> Result<(), AppError> {
-        let msg = Message::Text(msg.to_string());
+    pub async fn write(&mut self, msg: Message) -> Result<(), AppError> {
         if let Ok(()) = self.stream.send(msg).await {
             Ok(())
         } else {
