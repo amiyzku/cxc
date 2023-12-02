@@ -11,9 +11,9 @@ pub trait Exchange:
 pub trait OrderbookProvider {
     type Params;
     async fn watch_orderbook(
-        &self,
+        &mut self,
         params: Self::Params,
-        callback: impl FnMut(Result<AppError, Orderbook>) + Send + 'static,
+        callback: impl FnMut(Result<Orderbook, AppError>) + Send + 'static,
     ) -> Result<(), AppError>;
 }
 
@@ -22,7 +22,7 @@ pub trait TradeProvider {
     async fn watch_trade(
         &self,
         params: Self::Params,
-        callback: impl FnMut(Result<AppError, Trade>) + Send + 'static,
+        callback: impl FnMut(Result<Trade, AppError>) + Send + 'static,
     );
 }
 
@@ -31,7 +31,7 @@ pub trait KlineProvider {
     async fn watch_kline(
         &self,
         params: Self::Params,
-        callback: impl FnMut(Result<AppError, Kline>) + Send + 'static,
+        callback: impl FnMut(Result<Kline, AppError>) + Send + 'static,
     );
 }
 
@@ -40,6 +40,6 @@ pub trait LiquidationProvider {
     async fn watch_liquidation(
         &self,
         params: Self::Params,
-        callback: impl FnMut(Result<AppError, Liquidation>) + Send + 'static,
+        callback: impl FnMut(Result<Liquidation, AppError>) + Send + 'static,
     );
 }

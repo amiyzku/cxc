@@ -15,6 +15,7 @@ impl WebsocketBase {
     }
 
     pub async fn read(&mut self) -> Result<Message, AppError> {
+        println!("read");
         match self.stream.next().await {
             Some(msg) => Ok(msg?),
             None => Err(AppError::WebsocketConnectionClosed()),

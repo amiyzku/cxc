@@ -3,13 +3,13 @@ use tokio_tungstenite::tungstenite::Message;
 use crate::{error::AppError, websocket_base::WebsocketBase};
 
 pub struct Websocket {
-    pub ws: WebsocketBase,
+    pub base: WebsocketBase,
 }
 
 impl Websocket {
     pub async fn connect(channel: String) -> Result<Self, AppError> {
         let ws = WebsocketBase::connect(channel).await?;
-        Ok(Self { ws })
+        Ok(Self { base: ws })
     }
 
     pub async fn subscribe(&mut self, topics: &Vec<String>) -> Result<(), AppError> {
@@ -25,7 +25,7 @@ impl Websocket {
     }
 
     pub async fn pong(&mut self) -> Result<(), AppError> {
-        self.ws.write(Message::Pong(vec![])).await?;
+        self.base.write(Message::Pong(vec![])).await?;
         Ok(())
     }
 }
