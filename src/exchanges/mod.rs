@@ -1,4 +1,5 @@
 pub mod binance;
+pub mod bybit;
 pub mod exchange;
 
 use std::time::{SystemTime, UNIX_EPOCH};
