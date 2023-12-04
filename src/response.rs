@@ -7,7 +7,7 @@ type UnixTimeMs = u128;
 type Price = f64;
 type Quantity = f64;
 type Symbol = String;
-type Raw = Option<String>;
+type Raw = String;
 type Id = String;
 type Volume = f64;
 

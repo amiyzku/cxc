@@ -37,7 +37,7 @@ impl Orderbook {
                 })
                 .collect(),
             timestamp: current_timestamp(),
-            raw: Some(raw),
+            raw,
         }
     }
 }
@@ -73,7 +73,7 @@ impl Trade {
         };
         response::Trade {
             data: vec![trade_data],
-            raw: Some(raw),
+            raw,
         }
     }
 }
@@ -128,7 +128,7 @@ impl Kline {
             start: self.k.t as u128,
             end: self.k.t2 as u128,
             timestamp: self.e2 as u128,
-            raw: Some(raw),
+            raw,
         }
     }
 }
@@ -173,7 +173,7 @@ impl Liquidation {
                 Side::Sell
             },
             timestamp: self.o.t as u128,
-            raw: Some(raw),
+            raw,
         }
     }
 }
