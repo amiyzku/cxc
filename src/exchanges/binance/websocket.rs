@@ -12,11 +12,11 @@ impl Websocket {
         Ok(Self { base: ws })
     }
 
-    pub async fn subscribe(&mut self, topics: &Vec<String>) -> Result<(), AppError> {
+    pub async fn subscribe(&mut self) -> Result<(), AppError> {
         unimplemented!("Use connect() instead")
     }
 
-    pub async fn unsubscribe(&mut self, topics: &Vec<String>) -> Result<(), AppError> {
+    pub async fn unsubscribe(&mut self) -> Result<(), AppError> {
         unimplemented!("Unused")
     }
 

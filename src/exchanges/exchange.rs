@@ -10,6 +10,7 @@ pub trait Exchange:
 {
 }
 
+#[allow(async_fn_in_trait)]
 pub trait OrderbookProvider {
     type Params;
     async fn watch_orderbook(
@@ -19,6 +20,7 @@ pub trait OrderbookProvider {
     ) -> Result<JoinHandle<()>, AppError>;
 }
 
+#[allow(async_fn_in_trait)]
 pub trait TradeProvider {
     type Params;
     async fn watch_trade(
@@ -28,6 +30,7 @@ pub trait TradeProvider {
     ) -> Result<JoinHandle<()>, AppError>;
 }
 
+#[allow(async_fn_in_trait)]
 pub trait KlineProvider {
     type Params;
     async fn watch_kline(
@@ -37,6 +40,7 @@ pub trait KlineProvider {
     ) -> Result<JoinHandle<()>, AppError>;
 }
 
+#[allow(async_fn_in_trait)]
 pub trait LiquidationProvider {
     type Params;
     async fn watch_liquidation(
