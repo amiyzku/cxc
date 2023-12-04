@@ -5,7 +5,7 @@ use tokio::{task::JoinHandle, time::timeout};
 use tokio_tungstenite::tungstenite::Message;
 
 use crate::{
-    error::AppError,
+    error::CxcError,
     exchanges::{
         exchange::{
             Exchange, KlineProvider, LiquidationProvider, OrderbookProvider, TradeProvider,
@@ -28,7 +28,7 @@ impl Bybit {
     fn run_forever(
         &mut self,
         mut ws: Websocket,
-        mut callback: impl FnMut(Result<String, AppError>) + Send + 'static,
+        mut callback: impl FnMut(Result<String, CxcError>) + Send + 'static,
     ) -> JoinHandle<()> {
         let mut ping_signal = scheduled_ping_signal(20);
         tokio::spawn(async move {
@@ -77,8 +77,8 @@ impl OrderbookProvider for Bybit {
     async fn watch_orderbook(
         &mut self,
         params: Self::Params,
-        mut callback: impl FnMut(Result<Orderbook, AppError>) + Send + 'static,
-    ) -> Result<JoinHandle<()>, AppError> {
+        mut callback: impl FnMut(Result<Orderbook, CxcError>) + Send + 'static,
+    ) -> Result<JoinHandle<()>, CxcError> {
         params.validate(&())?;
         let depth = match params.channel {
             Channel::MainnetInverse
@@ -122,7 +122,7 @@ impl OrderbookProvider for Bybit {
                         callback(Ok(orderbook));
                     }
                     Err(e) => {
-                        callback(Err(AppError::JsonDeserializeError(e)));
+                        callback(Err(CxcError::JsonDeserializeError(e)));
                     }
                 }
             }
@@ -146,8 +146,8 @@ impl TradeProvider for Bybit {
     async fn watch_trade(
         &mut self,
         params: Self::Params,
-        callback: impl FnMut(Result<Trade, AppError>) + Send + 'static,
-    ) -> Result<JoinHandle<()>, AppError> {
+        callback: impl FnMut(Result<Trade, CxcError>) + Send + 'static,
+    ) -> Result<JoinHandle<()>, CxcError> {
         todo!()
     }
 }
@@ -164,8 +164,8 @@ impl KlineProvider for Bybit {
     async fn watch_kline(
         &mut self,
         params: Self::Params,
-        callback: impl FnMut(Result<Kline, AppError>) + Send + 'static,
-    ) -> Result<JoinHandle<()>, AppError> {
+        callback: impl FnMut(Result<Kline, CxcError>) + Send + 'static,
+    ) -> Result<JoinHandle<()>, CxcError> {
         todo!()
     }
 }
@@ -181,8 +181,8 @@ impl LiquidationProvider for Bybit {
     async fn watch_liquidation(
         &mut self,
         params: Self::Params,
-        callback: impl FnMut(Result<Liquidation, AppError>) + Send + 'static,
-    ) -> Result<JoinHandle<()>, AppError> {
+        callback: impl FnMut(Result<Liquidation, CxcError>) + Send + 'static,
+    ) -> Result<JoinHandle<()>, CxcError> {
         todo!()
     }
 }

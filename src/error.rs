@@ -1,5 +1,5 @@
 #[derive(thiserror::Error, Debug)]
-pub enum AppError {
+pub enum CxcError {
     #[error("Websocket connection error: {0}")]
     WebsocketError(#[from] tokio_tungstenite::tungstenite::Error),
 

@@ -1,6 +1,6 @@
 use tokio_tungstenite::tungstenite::Message;
 
-use crate::{error::AppError, websocket_base::WebsocketBase};
+use crate::{error::CxcError, websocket_base::WebsocketBase};
 
 use super::request_params::RequestParams;
 
@@ -9,29 +9,21 @@ pub struct Websocket {
 }
 
 impl Websocket {
-    pub async fn connect(channel: String) -> Result<Self, AppError> {
+    pub async fn connect(channel: String) -> Result<Self, CxcError> {
         let ws = WebsocketBase::connect(channel).await?;
         Ok(Self { base: ws })
     }
 
-    pub async fn subscribe(&mut self, topics: &Vec<String>) -> Result<(), AppError> {
+    pub async fn subscribe(&mut self, topics: &Vec<String>) -> Result<(), CxcError> {
         let params = RequestParams::subscribe(topics);
-        let json = serde_json::to_string(&params).map_err(|e| AppError::JsonSerializeError(e))?;
+        let json = serde_json::to_string(&params).map_err(|e| CxcError::JsonSerializeError(e))?;
         self.base.write(Message::Text(json)).await?;
         Ok(())
     }
 
-    pub async fn unsubscribe(&mut self) -> Result<(), AppError> {
-        unimplemented!("Unused")
-    }
-
-    pub async fn auth(&mut self) -> Result<(), AppError> {
-        unimplemented!("Unused")
-    }
-
-    pub async fn ping(&mut self) -> Result<(), AppError> {
+    pub async fn ping(&mut self) -> Result<(), CxcError> {
         let params = RequestParams::ping();
-        let json = serde_json::to_string(&params).map_err(|e| AppError::JsonSerializeError(e))?;
+        let json = serde_json::to_string(&params).map_err(|e| CxcError::JsonSerializeError(e))?;
         self.base.write(Message::Text(json)).await?;
         Ok(())
     }

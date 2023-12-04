@@ -1,7 +1,7 @@
 use std::time::Duration;
 
 use crate::{
-    error::AppError,
+    error::CxcError,
     exchanges::{
         binance::{raw_response, websocket::Websocket},
         exchange::{
@@ -28,7 +28,7 @@ impl Binance {
     fn run_forever(
         &mut self,
         mut ws: Websocket,
-        mut callback: impl FnMut(Result<String, AppError>) + Send + 'static,
+        mut callback: impl FnMut(Result<String, CxcError>) + Send + 'static,
     ) -> JoinHandle<()> {
         tokio::spawn(async move {
             loop {
@@ -60,8 +60,8 @@ impl OrderbookProvider for Binance {
     async fn watch_orderbook(
         &mut self,
         params: Self::Params,
-        mut callback: impl FnMut(Result<Orderbook, AppError>) + Send + 'static,
-    ) -> Result<JoinHandle<()>, AppError> {
+        mut callback: impl FnMut(Result<Orderbook, CxcError>) + Send + 'static,
+    ) -> Result<JoinHandle<()>, CxcError> {
         params.validate(&())?;
         let depth = match params.depth {
             1..=5 => 5,
@@ -88,7 +88,7 @@ impl OrderbookProvider for Binance {
                         callback(Ok(orderbook));
                     }
                     Err(e) => {
-                        callback(Err(AppError::JsonDeserializeError(e)));
+                        callback(Err(CxcError::JsonDeserializeError(e)));
                     }
                 }
             }
@@ -106,8 +106,8 @@ impl TradeProvider for Binance {
     async fn watch_trade(
         &mut self,
         params: Self::Params,
-        mut callback: impl FnMut(Result<Trade, AppError>) + Send + 'static,
-    ) -> Result<JoinHandle<()>, AppError> {
+        mut callback: impl FnMut(Result<Trade, CxcError>) + Send + 'static,
+    ) -> Result<JoinHandle<()>, CxcError> {
         let endpoint = format!(
             "{}/ws/{}@aggTrade",
             params.channel.to_string(),
@@ -125,7 +125,7 @@ impl TradeProvider for Binance {
                         callback(Ok(trade));
                     }
                     Err(e) => {
-                        callback(Err(AppError::JsonDeserializeError(e)));
+                        callback(Err(CxcError::JsonDeserializeError(e)));
                     }
                 }
             }
@@ -143,8 +143,8 @@ impl KlineProvider for Binance {
     async fn watch_kline(
         &mut self,
         params: Self::Params,
-        mut callback: impl FnMut(Result<crate::response::Kline, AppError>) + Send + 'static,
-    ) -> Result<JoinHandle<()>, AppError> {
+        mut callback: impl FnMut(Result<crate::response::Kline, CxcError>) + Send + 'static,
+    ) -> Result<JoinHandle<()>, CxcError> {
         let endpoint = format!(
             "{}/ws/{}@kline_{}",
             params.channel.to_string(),
@@ -163,7 +163,7 @@ impl KlineProvider for Binance {
                         callback(Ok(kline));
                     }
                     Err(e) => {
-                        callback(Err(AppError::JsonDeserializeError(e)));
+                        callback(Err(CxcError::JsonDeserializeError(e)));
                     }
                 }
             }
@@ -181,8 +181,8 @@ impl LiquidationProvider for Binance {
     async fn watch_liquidation(
         &mut self,
         params: Self::Params,
-        mut callback: impl FnMut(Result<crate::response::Liquidation, AppError>) + Send + 'static,
-    ) -> Result<JoinHandle<()>, AppError> {
+        mut callback: impl FnMut(Result<crate::response::Liquidation, CxcError>) + Send + 'static,
+    ) -> Result<JoinHandle<()>, CxcError> {
         let endpoint = format!(
             "{}/ws/{}@forceOrder",
             params.channel.to_string(),
@@ -200,7 +200,7 @@ impl LiquidationProvider for Binance {
                         callback(Ok(liquidation));
                     }
                     Err(e) => {
-                        callback(Err(AppError::JsonDeserializeError(e)));
+                        callback(Err(CxcError::JsonDeserializeError(e)));
                     }
                 }
             }

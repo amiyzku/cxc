@@ -1,7 +1,7 @@
 use tokio::task::JoinHandle;
 
 use crate::{
-    error::AppError,
+    error::CxcError,
     response::{Kline, Liquidation, Orderbook, Trade},
 };
 
@@ -16,8 +16,8 @@ pub trait OrderbookProvider {
     async fn watch_orderbook(
         &mut self,
         params: Self::Params,
-        callback: impl FnMut(Result<Orderbook, AppError>) + Send + 'static,
-    ) -> Result<JoinHandle<()>, AppError>;
+        callback: impl FnMut(Result<Orderbook, CxcError>) + Send + 'static,
+    ) -> Result<JoinHandle<()>, CxcError>;
 }
 
 #[allow(async_fn_in_trait)]
@@ -26,8 +26,8 @@ pub trait TradeProvider {
     async fn watch_trade(
         &mut self,
         params: Self::Params,
-        callback: impl FnMut(Result<Trade, AppError>) + Send + 'static,
-    ) -> Result<JoinHandle<()>, AppError>;
+        callback: impl FnMut(Result<Trade, CxcError>) + Send + 'static,
+    ) -> Result<JoinHandle<()>, CxcError>;
 }
 
 #[allow(async_fn_in_trait)]
@@ -36,8 +36,8 @@ pub trait KlineProvider {
     async fn watch_kline(
         &mut self,
         params: Self::Params,
-        callback: impl FnMut(Result<Kline, AppError>) + Send + 'static,
-    ) -> Result<JoinHandle<()>, AppError>;
+        callback: impl FnMut(Result<Kline, CxcError>) + Send + 'static,
+    ) -> Result<JoinHandle<()>, CxcError>;
 }
 
 #[allow(async_fn_in_trait)]
@@ -46,6 +46,6 @@ pub trait LiquidationProvider {
     async fn watch_liquidation(
         &mut self,
         params: Self::Params,
-        callback: impl FnMut(Result<Liquidation, AppError>) + Send + 'static,
-    ) -> Result<JoinHandle<()>, AppError>;
+        callback: impl FnMut(Result<Liquidation, CxcError>) + Send + 'static,
+    ) -> Result<JoinHandle<()>, CxcError>;
 }
