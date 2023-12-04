@@ -31,10 +31,10 @@ pub trait TradeProvider {
 pub trait KlineProvider {
     type Params;
     async fn watch_kline(
-        &self,
+        &mut self,
         params: Self::Params,
         callback: impl FnMut(Result<Kline, AppError>) + Send + 'static,
-    );
+    ) -> Result<JoinHandle<()>, AppError>;
 }
 
 pub trait LiquidationProvider {

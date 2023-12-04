@@ -77,3 +77,58 @@ impl Trade {
         }
     }
 }
+
+#[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct Kline {
+    pub e: String,
+    #[serde(rename = "E")]
+    pub e2: i64,
+    pub s: String,
+    pub k: K,
+}
+
+#[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct K {
+    pub t: i64,
+    #[serde(rename = "T")]
+    pub t2: i64,
+    pub s: String,
+    pub i: String,
+    pub f: i64,
+    #[serde(rename = "L")]
+    pub l: i64,
+    pub o: String,
+    pub c: String,
+    pub h: String,
+    #[serde(rename = "l")]
+    pub l2: String,
+    pub v: String,
+    pub n: i64,
+    pub x: bool,
+    pub q: String,
+    #[serde(rename = "V")]
+    pub v2: String,
+    #[serde(rename = "Q")]
+    pub q2: String,
+    #[serde(rename = "B")]
+    pub b: String,
+}
+
+impl Kline {
+    pub fn standardize(self, raw: String) -> response::Kline {
+        response::Kline {
+            symbol: self.s,
+            volume: self.k.v.parse::<f64>().unwrap(),
+            open: self.k.o.parse::<f64>().unwrap(),
+            high: self.k.h.parse::<f64>().unwrap(),
+            low: self.k.l2.parse::<f64>().unwrap(),
+            close: self.k.c.parse::<f64>().unwrap(),
+            start: self.k.t as u128,
+            end: self.k.t2 as u128,
+            timestamp: self.e2 as u128,
+            raw: Some(raw),
+        }
+    }
+}
