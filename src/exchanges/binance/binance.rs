@@ -8,14 +8,11 @@ use crate::{
             Exchange, KlineProvider, LiquidationProvider, OrderbookProvider, TradeProvider,
         },
     },
-    response::Orderbook,
+    response::{Orderbook, Trade},
 };
 
 use garde::Validate;
-use tokio::{
-    task::{AbortHandle, JoinHandle, JoinSet},
-    time::timeout,
-};
+use tokio::{task::JoinHandle, time::timeout};
 use tokio_tungstenite::tungstenite::Message;
 
 use super::{channel::Channel, interval::Interval};
@@ -107,11 +104,37 @@ impl OrderbookProvider for Binance {
 impl TradeProvider for Binance {
     type Params = TradeParams;
     async fn watch_trade(
-        &self,
+        &mut self,
         params: Self::Params,
-        callback: impl FnMut(Result<crate::response::Trade, AppError>) + Send + 'static,
-    ) {
-        todo!()
+        mut callback: impl FnMut(Result<Trade, AppError>) + Send + 'static,
+    ) -> Result<JoinHandle<()>, AppError> {
+        let endpoint = format!(
+            "{}/ws/{}@aggTrade",
+            params.channel.to_string(),
+            params.symbol.to_lowercase()
+        );
+
+        let ws = Websocket::connect(endpoint).await?;
+
+        let handle = self.run_forever(ws, move |msg| match msg {
+            Ok(msg) => {
+                let json = serde_json::from_str::<raw_response::Trade>(&msg);
+                match json {
+                    Ok(json) => {
+                        let trade = json.standardize(msg);
+                        callback(Ok(trade));
+                    }
+                    Err(e) => {
+                        callback(Err(AppError::JsonDeserializeError(e)));
+                    }
+                }
+            }
+            Err(e) => {
+                callback(Err(e));
+            }
+        });
+
+        Ok(handle)
     }
 }
 
@@ -140,16 +163,17 @@ impl LiquidationProvider for Binance {
 #[derive(Debug, Validate)]
 pub struct OrderBookParams {
     #[garde(skip)]
+    pub channel: Channel,
+    #[garde(skip)]
     pub symbol: String,
     #[garde(range(min = 1, max = 20))]
     pub depth: u32,
-    #[garde(skip)]
-    pub channel: Channel,
 }
 
 #[derive(Debug)]
 pub struct TradeParams {
-    symbol: String,
+    pub channel: Channel,
+    pub symbol: String,
 }
 
 #[derive(Debug)]

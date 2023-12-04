@@ -22,10 +22,10 @@ pub trait OrderbookProvider {
 pub trait TradeProvider {
     type Params;
     async fn watch_trade(
-        &self,
+        &mut self,
         params: Self::Params,
         callback: impl FnMut(Result<Trade, AppError>) + Send + 'static,
-    );
+    ) -> Result<JoinHandle<()>, AppError>;
 }
 
 pub trait KlineProvider {
