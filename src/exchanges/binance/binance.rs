@@ -87,7 +87,7 @@ impl OrderbookProvider for Binance {
                 let json = serde_json::from_str::<raw_response::Orderbook>(&msg);
                 match json {
                     Ok(json) => {
-                        let orderbook = json.standardize(params.symbol.clone(), msg);
+                        let orderbook = json.standardize(params.symbol.clone(), params.depth, msg);
                         callback(Ok(orderbook));
                     }
                     Err(e) => {

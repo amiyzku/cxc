@@ -13,7 +13,7 @@ async fn main() {
         .watch_orderbook(
             OrderBookParams {
                 symbol: "BTCUSDT".to_string(),
-                depth: 5,
+                depth: 1,
                 channel: Channel::Spot,
             },
             |orderbook| {

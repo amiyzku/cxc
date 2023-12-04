@@ -14,12 +14,13 @@ pub struct Orderbook {
 }
 
 impl Orderbook {
-    pub fn standardize(self, symbol: String, raw: String) -> response::Orderbook {
+    pub fn standardize(self, symbol: String, depth: u32, raw: String) -> response::Orderbook {
         response::Orderbook {
             symbol,
             bids: self
                 .bids
                 .iter()
+                .take(depth as usize)
                 .map(|bid| PriceAndQuantity {
                     price: bid[0].parse::<f64>().unwrap(),
                     quantity: bid[1].parse::<f64>().unwrap(),
@@ -28,6 +29,7 @@ impl Orderbook {
             asks: self
                 .asks
                 .iter()
+                .take(depth as usize)
                 .map(|ask| PriceAndQuantity {
                     price: ask[0].parse::<f64>().unwrap(),
                     quantity: ask[1].parse::<f64>().unwrap(),
