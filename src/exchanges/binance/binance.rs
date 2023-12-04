@@ -179,11 +179,37 @@ impl KlineProvider for Binance {
 impl LiquidationProvider for Binance {
     type Params = LiquidationParams;
     async fn watch_liquidation(
-        &self,
+        &mut self,
         params: Self::Params,
-        callback: impl FnMut(Result<crate::response::Liquidation, AppError>) + Send + 'static,
-    ) {
-        todo!()
+        mut callback: impl FnMut(Result<crate::response::Liquidation, AppError>) + Send + 'static,
+    ) -> Result<JoinHandle<()>, AppError> {
+        let endpoint = format!(
+            "{}/ws/{}@forceOrder",
+            params.channel.to_string(),
+            params.symbol.to_lowercase()
+        );
+
+        let ws = Websocket::connect(endpoint).await?;
+
+        let handle = self.run_forever(ws, move |msg| match msg {
+            Ok(msg) => {
+                let json = serde_json::from_str::<raw_response::Liquidation>(&msg);
+                match json {
+                    Ok(json) => {
+                        let liquidation = json.standardize(msg);
+                        callback(Ok(liquidation));
+                    }
+                    Err(e) => {
+                        callback(Err(AppError::JsonDeserializeError(e)));
+                    }
+                }
+            }
+            Err(e) => {
+                callback(Err(e));
+            }
+        });
+
+        Ok(handle)
     }
 }
 
@@ -212,6 +238,6 @@ pub struct KlineParams {
 
 #[derive(Debug)]
 pub struct LiquidationParams {
-    channel: Channel,
-    symbol: String,
+    pub channel: Channel,
+    pub symbol: String,
 }

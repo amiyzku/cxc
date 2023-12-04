@@ -132,3 +132,48 @@ impl Kline {
         }
     }
 }
+
+#[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct Liquidation {
+    pub e: String,
+    #[serde(rename = "E")]
+    pub e2: i64,
+    pub o: O,
+}
+
+#[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct O {
+    pub s: String,
+    #[serde(rename = "S")]
+    pub s2: String,
+    pub o: String,
+    pub f: String,
+    pub q: String,
+    pub p: String,
+    pub ap: String,
+    #[serde(rename = "X")]
+    pub x: String,
+    pub l: String,
+    pub z: String,
+    #[serde(rename = "T")]
+    pub t: i64,
+}
+
+impl Liquidation {
+    pub fn standardize(self, raw: String) -> response::Liquidation {
+        response::Liquidation {
+            symbol: self.o.s,
+            price: self.o.p.parse::<f64>().unwrap(),
+            quantity: self.o.q.parse::<f64>().unwrap(),
+            side: if self.o.s2 == "BUY" {
+                Side::Buy
+            } else {
+                Side::Sell
+            },
+            timestamp: self.o.t as u128,
+            raw: Some(raw),
+        }
+    }
+}

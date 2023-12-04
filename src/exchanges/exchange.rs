@@ -40,8 +40,8 @@ pub trait KlineProvider {
 pub trait LiquidationProvider {
     type Params;
     async fn watch_liquidation(
-        &self,
+        &mut self,
         params: Self::Params,
         callback: impl FnMut(Result<Liquidation, AppError>) + Send + 'static,
-    );
+    ) -> Result<JoinHandle<()>, AppError>;
 }
