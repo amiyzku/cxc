@@ -238,8 +238,35 @@ impl LiquidationProvider for Bybit {
     async fn watch_liquidation(
         &mut self,
         params: Self::Params,
-        callback: impl FnMut(Result<Liquidation, CxcError>) + Send + 'static,
+        mut callback: impl FnMut(Result<Liquidation, CxcError>) + Send + 'static,
     ) -> Result<JoinHandle<()>, CxcError> {
-        todo!()
+        let mut ws = Websocket::connect(params.channel.to_string()).await?;
+
+        ws.subscribe(&vec![format!(
+            "liquidation.{}",
+            params.symbol.to_uppercase()
+        )])
+        .await?;
+
+        let handle = self.run_forever(ws, move |msg| match msg {
+            Ok(msg) => {
+                println!("{:?}", msg);
+                let json = serde_json::from_str::<raw_response::liquidation::Liquidation>(&msg);
+                match json {
+                    Ok(json) => {
+                        let orderbook = json.standardize(msg);
+                        callback(Ok(orderbook));
+                    }
+                    Err(e) => {
+                        callback(Err(CxcError::JsonDeserializeError(e)));
+                    }
+                }
+            }
+            Err(e) => {
+                callback(Err(e));
+            }
+        });
+
+        Ok(handle)
     }
 }
