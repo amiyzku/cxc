@@ -1,5 +1,5 @@
 use cxc::exchanges::bybit::bybit::{
-    Bybit, KlineParams, LiquidationParams, OrderBookParams, TradeParams,
+    Bybit, KlineParams, LiquidationParams, OrderbookParams, TradeParams,
 };
 use cxc::exchanges::bybit::channel::Channel;
 use cxc::exchanges::bybit::interval::Interval;
@@ -16,7 +16,7 @@ async fn main() {
     tasks.push(
         bybit
             .watch_orderbook(
-                OrderBookParams {
+                OrderbookParams {
                     symbol: "BTCUSDT".to_string(),
                     depth: 2,
                     channel: Channel::MainnetSpot,

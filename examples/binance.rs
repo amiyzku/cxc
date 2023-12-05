@@ -1,6 +1,6 @@
 use cxc::exchanges::{
     binance::{
-        binance::{Binance, KlineParams, LiquidationParams, OrderBookParams, TradeParams},
+        binance::{Binance, KlineParams, LiquidationParams, OrderbookParams, TradeParams},
         channel::Channel,
         interval::Interval,
     },
@@ -16,7 +16,7 @@ async fn main() {
     tasks.push(
         binance
             .watch_orderbook(
-                OrderBookParams {
+                OrderbookParams {
                     symbol: "BTCUSDT".to_string(),
                     depth: 1,
                     channel: Channel::Spot,

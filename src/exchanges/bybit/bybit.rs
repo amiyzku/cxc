@@ -63,7 +63,7 @@ impl Bybit {
 }
 
 #[derive(Debug, Validate)]
-pub struct OrderBookParams {
+pub struct OrderbookParams {
     #[garde(skip)]
     pub channel: Channel,
     #[garde(skip)]
@@ -73,7 +73,7 @@ pub struct OrderBookParams {
 }
 
 impl OrderbookProvider for Bybit {
-    type Params = OrderBookParams;
+    type Params = OrderbookParams;
     async fn watch_orderbook(
         &mut self,
         params: Self::Params,

@@ -56,7 +56,7 @@ impl Binance {
 }
 
 impl OrderbookProvider for Binance {
-    type Params = OrderBookParams;
+    type Params = OrderbookParams;
     async fn watch_orderbook(
         &mut self,
         params: Self::Params,
@@ -214,7 +214,7 @@ impl LiquidationProvider for Binance {
 }
 
 #[derive(Debug, Validate)]
-pub struct OrderBookParams {
+pub struct OrderbookParams {
     #[garde(skip)]
     pub channel: Channel,
     #[garde(skip)]
