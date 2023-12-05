@@ -31,7 +31,7 @@ impl Orderbook {
             bids: self
                 .data
                 .b
-                .iter()
+                .into_iter()
                 .take(depth as usize)
                 .map(|bid| PriceAndQuantity {
                     price: bid[0].parse::<f64>().unwrap(),
@@ -41,7 +41,7 @@ impl Orderbook {
             asks: self
                 .data
                 .a
-                .iter()
+                .into_iter()
                 .take(depth as usize)
                 .map(|ask| PriceAndQuantity {
                     price: ask[0].parse::<f64>().unwrap(),

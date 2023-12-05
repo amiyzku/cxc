@@ -1,6 +1,6 @@
-use cxc::exchanges::bybit::bybit::{Bybit, OrderBookParams};
+use cxc::exchanges::bybit::bybit::{Bybit, OrderBookParams, TradeParams};
 use cxc::exchanges::bybit::channel::Channel;
-use cxc::exchanges::exchange::OrderbookProvider;
+use cxc::exchanges::exchange::{OrderbookProvider, TradeProvider};
 use futures_util::future::join_all;
 
 #[tokio::main]
@@ -22,6 +22,21 @@ async fn main() {
             )
             .await
             .expect("Failed to watch orderbook"),
+    );
+
+    tasks.push(
+        bybit
+            .watch_trade(
+                TradeParams {
+                    symbol: "BTCUSDT".to_string(),
+                    channel: Channel::MainnetSpot,
+                },
+                |trade| {
+                    println!("{:?}", trade);
+                },
+            )
+            .await
+            .expect("Failed to watch trade"),
     );
 
     join_all(tasks).await;
