@@ -89,18 +89,22 @@ impl OrderbookProvider for Bybit {
                 2..=50 => 50,
                 51..=200 => 200,
                 201..=500 => 500,
-                _ => unreachable!(),
+                _ => unreachable!("depth must be in range 1..=500"),
             },
             Channel::MainnetSpot | Channel::TestnetSpot => match params.depth {
                 1 => 1,
                 2..=50 => 50,
                 51..=200 => 100,
-                _ => unreachable!(),
+                _ => Err(CxcError::InvalidParamsError(
+                    "Spot channel depth must be in range 1..=200".to_string(),
+                ))?,
             },
             Channel::MainnetOption | Channel::TestnetOption => match params.depth {
                 1..=25 => 25,
-                26..=200 => 100,
-                _ => unreachable!(),
+                26..=100 => 100,
+                _ => Err(CxcError::InvalidParamsError(
+                    "Option channel depth must be in range 1..=200".to_string(),
+                ))?,
             },
         };
 

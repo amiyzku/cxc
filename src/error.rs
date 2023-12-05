@@ -17,4 +17,7 @@ pub enum CxcError {
 
     #[error("Validation error: {0}")]
     ValidateError(#[from] garde::Report),
+
+    #[error("Invalid params: {0}")]
+    InvalidParamsError(String),
 }
