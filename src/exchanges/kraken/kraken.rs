@@ -1,5 +1,6 @@
 use std::time::Duration;
 
+use garde::Validate;
 use tokio::{task::JoinHandle, time::timeout};
 use tokio_tungstenite::tungstenite::Message;
 
@@ -16,6 +17,7 @@ use crate::{
 
 use super::{
     channel::Channel,
+    is_correct_symbol,
     request_params::{Depth, Name, Subscribe, Subscription},
 };
 
@@ -68,9 +70,13 @@ impl Kraken {
 
 impl Exchange for Kraken {}
 
+#[derive(Validate)]
+#[garde(context(()))]
+#[garde(allow_unvalidated)]
 pub struct OrderbookParams {
     pub channel: Channel,
     pub depth: Depth,
+    #[garde(custom(is_correct_symbol))]
     pub symbol: String,
 }
 impl OrderbookProvider for Kraken {
@@ -80,13 +86,7 @@ impl OrderbookProvider for Kraken {
         params: Self::Params,
         mut callback: impl FnMut(Result<crate::response::Orderbook, CxcError>) + Send + 'static,
     ) -> Result<JoinHandle<()>, CxcError> {
-        if !params.symbol.contains("/") {
-            return Err(CxcError::InvalidSymbol(
-                params.symbol,
-                "symbol must contain /".to_string(),
-            ));
-        }
-
+        params.validate(&())?;
         let subscribe = Subscribe {
             event: "subscribe".to_string(),
             pair: vec![params.symbol.clone()],
@@ -121,8 +121,12 @@ impl OrderbookProvider for Kraken {
     }
 }
 
+#[derive(Validate)]
+#[garde(context(()))]
+#[garde(allow_unvalidated)]
 pub struct TradeParams {
     pub channel: Channel,
+    #[garde(custom(is_correct_symbol))]
     pub symbol: String,
 }
 impl TradeProvider for Kraken {
@@ -132,12 +136,7 @@ impl TradeProvider for Kraken {
         params: Self::Params,
         mut callback: impl FnMut(Result<crate::response::Trade, CxcError>) + Send + 'static,
     ) -> Result<JoinHandle<()>, CxcError> {
-        if !params.symbol.contains("/") {
-            return Err(CxcError::InvalidSymbol(
-                params.symbol,
-                "symbol must contain /".to_string(),
-            ));
-        }
+        params.validate(&())?;
 
         let subscribe = Subscribe {
             event: "subscribe".to_string(),
@@ -172,14 +171,22 @@ impl TradeProvider for Kraken {
     }
 }
 
-pub struct KlineParams {}
+#[derive(Validate)]
+#[garde(context(()))]
+#[garde(allow_unvalidated)]
+pub struct KlineParams {
+    pub channel: Channel,
+    #[garde(custom(is_correct_symbol))]
+    pub symbol: String,
+}
 impl KlineProvider for Kraken {
     type Params = KlineParams;
     async fn watch_kline(
         &mut self,
         params: Self::Params,
-        callback: impl FnMut(Result<crate::response::Kline, CxcError>) + Send + 'static,
+        mut callback: impl FnMut(Result<crate::response::Kline, CxcError>) + Send + 'static,
     ) -> Result<JoinHandle<()>, CxcError> {
+        params.validate(&())?;
         todo!()
     }
 }
