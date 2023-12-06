@@ -1,6 +1,5 @@
 use std::time::Duration;
 
-use serde_json::json;
 use tokio::{task::JoinHandle, time::timeout};
 use tokio_tungstenite::tungstenite::Message;
 
@@ -88,16 +87,14 @@ impl OrderbookProvider for Kraken {
             ));
         }
 
-        let subscription = Subscription {
-            name: Name::Book,
-            depth: Some(params.depth),
-            ..Default::default()
-        };
-
         let subscribe = Subscribe {
             event: "subscribe".to_string(),
             pair: vec![params.symbol.clone()],
-            subscription,
+            subscription: Subscription {
+                name: Name::Book,
+                depth: Some(params.depth),
+                ..Default::default()
+            },
         };
 
         let mut ws = Websocket::connect(params.channel.to_string()).await?;
@@ -105,7 +102,6 @@ impl OrderbookProvider for Kraken {
 
         let handle = self.run_forever(ws, move |msg| match msg {
             Ok(msg) => {
-                println!("{}", msg);
                 let json = serde_json::from_str::<raw_response::orderbook::Orderbook>(&msg);
                 match json {
                     Ok(json) => {
@@ -125,15 +121,54 @@ impl OrderbookProvider for Kraken {
     }
 }
 
-pub struct TradeParams {}
+pub struct TradeParams {
+    pub channel: Channel,
+    pub symbol: String,
+}
 impl TradeProvider for Kraken {
     type Params = TradeParams;
     async fn watch_trade(
         &mut self,
         params: Self::Params,
-        callback: impl FnMut(Result<crate::response::Trade, CxcError>) + Send + 'static,
+        mut callback: impl FnMut(Result<crate::response::Trade, CxcError>) + Send + 'static,
     ) -> Result<JoinHandle<()>, CxcError> {
-        todo!()
+        if !params.symbol.contains("/") {
+            return Err(CxcError::InvalidSymbol(
+                params.symbol,
+                "symbol must contain /".to_string(),
+            ));
+        }
+
+        let subscribe = Subscribe {
+            event: "subscribe".to_string(),
+            pair: vec![params.symbol.clone()],
+            subscription: Subscription {
+                name: Name::Trade,
+                ..Default::default()
+            },
+        };
+
+        let mut ws = Websocket::connect(params.channel.to_string()).await?;
+        ws.subscribe(subscribe).await?;
+
+        let handle = self.run_forever(ws, move |msg| match msg {
+            Ok(msg) => {
+                let json = serde_json::from_str::<raw_response::trade::Trade>(&msg);
+                match json {
+                    Ok(json) => {
+                        let orderbook = json.standardize(params.symbol.clone(), msg);
+                        callback(Ok(orderbook));
+                    }
+                    Err(e) => {
+                        callback(Err(CxcError::JsonDeserializeError(e)));
+                    }
+                }
+            }
+            Err(e) => {
+                callback(Err(e));
+            }
+        });
+        Ok(handle)
     }
 }
 

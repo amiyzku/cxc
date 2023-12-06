@@ -3,14 +3,7 @@ use serde::Serialize;
 
 use crate::response;
 
-type ChannelID = i64;
-type ChannelName = String;
-type Pair = String;
-type Price = String;
-type Volume = String;
-type TimestampSec = String;
-type Checksum = String;
-type RepublishFlag = String;
+use super::*;
 
 #[derive(Debug, Serialize, Deserialize)]
 #[serde(default)]
@@ -59,11 +52,6 @@ pub struct Orderbook {
 }
 
 impl Orderbook {
-    fn sec_to_ms(sec: String) -> u128 {
-        let f = sec.parse::<f64>().unwrap();
-        (f * 1000.0) as u128
-    }
-
     pub fn standardize(self, symbol: String, raw: String) -> response::Orderbook {
         let mut bids = Vec::new();
         let mut asks = Vec::new();
@@ -77,7 +65,7 @@ impl Orderbook {
                         price: book.price.parse().unwrap(),
                         quantity: book.volume.parse().unwrap(),
                     });
-                    timestamp_ms = Self::sec_to_ms(book.timestamp_sec);
+                    timestamp_ms = sec_to_ms(book.timestamp_sec);
                 }
             }
             Books::BidOnly { b, .. } => {
@@ -86,7 +74,7 @@ impl Orderbook {
                         price: book.price.parse().unwrap(),
                         quantity: book.volume.parse().unwrap(),
                     });
-                    timestamp_ms = Self::sec_to_ms(book.timestamp_sec);
+                    timestamp_ms = sec_to_ms(book.timestamp_sec);
                 }
             }
             Books::AskAndBid { a, b, .. } => {
@@ -95,14 +83,14 @@ impl Orderbook {
                         price: book.price.parse().unwrap(),
                         quantity: book.volume.parse().unwrap(),
                     });
-                    timestamp_ms = Self::sec_to_ms(book.timestamp_sec);
+                    timestamp_ms = sec_to_ms(book.timestamp_sec);
                 }
                 for book in b {
                     bids.push(response::PriceAndQuantity {
                         price: book.price.parse().unwrap(),
                         quantity: book.volume.parse().unwrap(),
                     });
-                    timestamp_ms = Self::sec_to_ms(book.timestamp_sec);
+                    timestamp_ms = sec_to_ms(book.timestamp_sec);
                 }
             }
         }

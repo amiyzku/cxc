@@ -24,7 +24,6 @@ impl Websocket {
     pub async fn ping(&mut self) -> Result<(), CxcError> {
         let event = Event::ping();
         let json = serde_json::to_string(&event).map_err(|e| CxcError::JsonSerializeError(e))?;
-        println!("{}", json);
         self.base.write(Message::Text(json)).await?;
         Ok(())
     }
