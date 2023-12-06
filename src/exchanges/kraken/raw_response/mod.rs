@@ -1,5 +1,6 @@
 pub mod orderbook;
 pub mod trade;
+pub mod kline;
 
 type ChannelID = i64;
 type ChannelName = String;

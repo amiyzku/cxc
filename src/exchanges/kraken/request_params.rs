@@ -49,7 +49,8 @@ pub enum Depth {
     OneThousand = 1000,
 }
 
-#[derive(Serialize, PartialEq, Eq)]
+#[derive(Serialize_repr, PartialEq, Eq, Clone, Copy)]
+#[repr(u32)]
 pub enum Interval {
     OneMinute = 1,
     FiveMinutes = 5,
@@ -60,6 +61,22 @@ pub enum Interval {
     OneDay = 1440,
     SevenDays = 10080,
     FifteenDays = 21600,
+}
+
+impl Interval {
+    pub fn to_minute(&self) -> u32 {
+        match self {
+            Interval::OneMinute => 1,
+            Interval::FiveMinutes => 5,
+            Interval::FifteenMinutes => 15,
+            Interval::ThirtyMinutes => 30,
+            Interval::OneHour => 60,
+            Interval::FourHours => 240,
+            Interval::OneDay => 1440,
+            Interval::SevenDays => 10080,
+            Interval::FifteenDays => 21600,
+        }
+    }
 }
 
 #[derive(PartialEq, Eq)]

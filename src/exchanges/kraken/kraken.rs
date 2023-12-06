@@ -18,7 +18,7 @@ use crate::{
 use super::{
     channel::Channel,
     is_correct_symbol,
-    request_params::{Depth, Name, Subscribe, Subscription},
+    request_params::{Depth, Interval, Name, Subscribe, Subscription},
 };
 
 pub struct Kraken {}
@@ -178,6 +178,7 @@ pub struct KlineParams {
     pub channel: Channel,
     #[garde(custom(is_correct_symbol))]
     pub symbol: String,
+    pub interval: Interval,
 }
 impl KlineProvider for Kraken {
     type Params = KlineParams;
@@ -187,7 +188,40 @@ impl KlineProvider for Kraken {
         mut callback: impl FnMut(Result<crate::response::Kline, CxcError>) + Send + 'static,
     ) -> Result<JoinHandle<()>, CxcError> {
         params.validate(&())?;
-        todo!()
+
+        let subscribe = Subscribe {
+            event: "subscribe".to_string(),
+            pair: vec![params.symbol.clone()],
+            subscription: Subscription {
+                name: Name::Ohlc,
+                interval: Some(params.interval),
+                ..Default::default()
+            },
+        };
+
+        let mut ws = Websocket::connect(params.channel.to_string()).await?;
+        ws.subscribe(subscribe).await?;
+
+        let handle = self.run_forever(ws, move |msg| match msg {
+            Ok(msg) => {
+                let json = serde_json::from_str::<raw_response::kline::Kline>(&msg);
+                match json {
+                    Ok(json) => {
+                        let orderbook =
+                            json.standardize(params.symbol.clone(), params.interval, msg);
+                        callback(Ok(orderbook));
+                    }
+                    Err(e) => {
+                        callback(Err(CxcError::JsonDeserializeError(e)));
+                    }
+                }
+            }
+            Err(e) => {
+                println!("{}", e);
+                callback(Err(e));
+            }
+        });
+        Ok(handle)
     }
 }
 
