@@ -20,4 +20,7 @@ pub enum CxcError {
 
     #[error("Invalid params: {0}")]
     InvalidParamsError(String),
+
+    #[error("Invalid symbol: {0}, {1}")]
+    InvalidSymbol(String, String),
 }
