@@ -191,14 +191,13 @@ impl KlineProvider for Kraken {
     }
 }
 
-pub struct LiquidationParams {}
 impl LiquidationProvider for Kraken {
-    type Params = LiquidationParams;
+    type Params = ();
     async fn watch_liquidation(
         &mut self,
-        params: Self::Params,
-        callback: impl FnMut(Result<crate::response::Liquidation, CxcError>) + Send + 'static,
+        _: Self::Params,
+        _: impl FnMut(Result<crate::response::Liquidation, CxcError>) + Send + 'static,
     ) -> Result<JoinHandle<()>, CxcError> {
-        todo!()
+        unimplemented!("Kraken does not support liquidation")
     }
 }
