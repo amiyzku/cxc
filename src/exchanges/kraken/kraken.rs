@@ -45,6 +45,8 @@ impl Kraken {
                         Message::Text(msg) => {
                             if msg.contains(r#""event":"pong"#)
                                 || msg.contains(r#""event":"heartbeat""#)
+                                || msg.contains(r#""event":"systemStatus""#)
+                                || msg.contains(r#""event":"subscriptionStatus""#)
                             {
                                 continue;
                             }

@@ -103,4 +103,16 @@ impl Event {
             event: "ping".to_string(),
         }
     }
+
+    pub fn pong() -> Event {
+        Event {
+            event: "pong".to_string(),
+        }
+    }
+
+    pub fn heartbeat() -> Event {
+        Event {
+            event: "heartbeat".to_string(),
+        }
+    }
 }
