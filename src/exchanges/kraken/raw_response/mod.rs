@@ -1,6 +1,6 @@
+pub mod kline;
 pub mod orderbook;
 pub mod trade;
-pub mod kline;
 
 type ChannelID = i64;
 type ChannelName = String;
@@ -11,7 +11,7 @@ type TimestampSec = String;
 type Checksum = String;
 type RepublishFlag = String;
 
-fn sec_to_ms(sec: String) -> u128 {
+fn sec_to_ms(sec: &str) -> u128 {
     let f = sec.parse::<f64>().unwrap();
     (f * 1000.0) as u128
 }

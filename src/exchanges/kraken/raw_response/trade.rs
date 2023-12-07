@@ -38,7 +38,7 @@ impl Trade {
                     },
                     price: trade.price.parse::<f64>().unwrap(),
                     quantity: trade.volume.parse::<f64>().unwrap(),
-                    timestamp: sec_to_ms(trade.timestamp_sec),
+                    timestamp: sec_to_ms(&trade.timestamp_sec),
                 })
                 .collect(),
             raw,

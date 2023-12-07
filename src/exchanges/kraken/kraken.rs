@@ -18,7 +18,7 @@ use crate::{
 use super::{
     channel::Channel,
     is_correct_symbol,
-    request_params::{Depth, Interval, Name, Subscribe, Subscription},
+    request_params::{Interval, Name, Subscribe, Subscription},
 };
 
 pub struct Kraken {}
@@ -75,7 +75,8 @@ impl Exchange for Kraken {}
 #[garde(allow_unvalidated)]
 pub struct OrderbookParams {
     pub channel: Channel,
-    pub depth: Depth,
+    #[garde(range(min = 1, max = 1000))]
+    pub depth: u32,
     #[garde(custom(is_correct_symbol))]
     pub symbol: String,
 }
@@ -87,12 +88,22 @@ impl OrderbookProvider for Kraken {
         mut callback: impl FnMut(Result<crate::response::Orderbook, CxcError>) + Send + 'static,
     ) -> Result<JoinHandle<()>, CxcError> {
         params.validate(&())?;
+
+        let depth = match params.depth {
+            1..=10 => 10,
+            11..=25 => 25,
+            26..=100 => 100,
+            101..=500 => 500,
+            501..=1000 => 500,
+            _ => unreachable!("Invalid depth"),
+        };
+
         let subscribe = Subscribe {
             event: "subscribe".to_string(),
             pair: vec![params.symbol.clone()],
             subscription: Subscription {
                 name: Name::Book,
-                depth: Some(params.depth),
+                depth: Some(depth),
                 ..Default::default()
             },
         };
@@ -105,7 +116,7 @@ impl OrderbookProvider for Kraken {
                 let json = serde_json::from_str::<raw_response::orderbook::Orderbook>(&msg);
                 match json {
                     Ok(json) => {
-                        let orderbook = json.standardize(params.symbol.clone(), msg);
+                        let orderbook = json.standardize(params.symbol.clone(), depth, msg);
                         callback(Ok(orderbook));
                     }
                     Err(e) => {

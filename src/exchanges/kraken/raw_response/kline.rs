@@ -37,9 +37,9 @@ impl Kline {
             low: data.low.parse::<f64>().unwrap(),
             close: data.close.parse::<f64>().unwrap(),
             volume: data.volume.parse::<f64>().unwrap(),
-            start: sec_to_ms(kline_start.to_string()),
-            end: sec_to_ms(data.etime.to_string()),
-            timestamp: sec_to_ms(data.timestamp_sec.to_string()),
+            start: sec_to_ms(&kline_start.to_string()),
+            end: sec_to_ms(&data.etime),
+            timestamp: sec_to_ms(&data.timestamp_sec),
             raw,
         };
     }

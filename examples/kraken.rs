@@ -3,7 +3,7 @@ use cxc::exchanges::{
     kraken::{
         channel::Channel,
         kraken::{KlineParams, Kraken, OrderbookParams, TradeParams},
-        request_params::{Depth, Interval},
+        request_params::Interval,
     },
 };
 use futures_util::future::join_all;
@@ -18,7 +18,7 @@ async fn main() {
             .watch_orderbook(
                 OrderbookParams {
                     channel: Channel::MainNetPublic,
-                    depth: Depth::OneHundred,
+                    depth: 3,
                     symbol: "BTC/USD".to_string(),
                 },
                 |orderbook| match orderbook {

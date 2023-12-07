@@ -52,7 +52,7 @@ pub struct Orderbook {
 }
 
 impl Orderbook {
-    pub fn standardize(self, symbol: String, raw: String) -> response::Orderbook {
+    pub fn standardize(self, symbol: String, depth: u32, raw: String) -> response::Orderbook {
         let mut bids = Vec::new();
         let mut asks = Vec::new();
 
@@ -60,37 +60,37 @@ impl Orderbook {
 
         match self.book {
             Books::AskOnly { a, .. } => {
-                for book in a {
+                for book in a.iter().take(depth as usize) {
                     asks.push(response::PriceAndQuantity {
                         price: book.price.parse().unwrap(),
                         quantity: book.volume.parse().unwrap(),
                     });
-                    timestamp_ms = sec_to_ms(book.timestamp_sec);
+                    timestamp_ms = sec_to_ms(&book.timestamp_sec);
                 }
             }
             Books::BidOnly { b, .. } => {
-                for book in b {
+                for book in b.iter().take(depth as usize) {
                     bids.push(response::PriceAndQuantity {
                         price: book.price.parse().unwrap(),
                         quantity: book.volume.parse().unwrap(),
                     });
-                    timestamp_ms = sec_to_ms(book.timestamp_sec);
+                    timestamp_ms = sec_to_ms(&book.timestamp_sec);
                 }
             }
             Books::AskAndBid { a, b, .. } => {
-                for book in a {
+                for book in a.iter().take(depth as usize) {
                     asks.push(response::PriceAndQuantity {
                         price: book.price.parse().unwrap(),
                         quantity: book.volume.parse().unwrap(),
                     });
-                    timestamp_ms = sec_to_ms(book.timestamp_sec);
+                    timestamp_ms = sec_to_ms(&book.timestamp_sec);
                 }
-                for book in b {
+                for book in b.iter().take(depth as usize) {
                     bids.push(response::PriceAndQuantity {
                         price: book.price.parse().unwrap(),
                         quantity: book.volume.parse().unwrap(),
                     });
-                    timestamp_ms = sec_to_ms(book.timestamp_sec);
+                    timestamp_ms = sec_to_ms(&book.timestamp_sec);
                 }
             }
         }

@@ -12,7 +12,7 @@ pub struct Subscribe {
 pub struct Subscription {
     pub name: Name,
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub depth: Option<Depth>,
+    pub depth: Option<u32>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub interval: Option<Interval>,
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -37,16 +37,6 @@ impl Default for Subscription {
             consolidate_taker: None,
         }
     }
-}
-
-#[derive(Serialize_repr, PartialEq, Eq)]
-#[repr(u32)]
-pub enum Depth {
-    Ten = 10,
-    TwentyFive = 25,
-    OneHundred = 100,
-    FiveHundred = 500,
-    OneThousand = 1000,
 }
 
 #[derive(Serialize_repr, PartialEq, Eq, Clone, Copy)]
