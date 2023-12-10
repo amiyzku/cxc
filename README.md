@@ -1,1 +1,1 @@
-# CXSC - Cryptocurrency eXchange Client
+# CXC - Cryptocurrency eXchange Client
